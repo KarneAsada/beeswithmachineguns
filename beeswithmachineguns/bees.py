@@ -311,7 +311,7 @@ def attack(url, n, c):
 
     params = []
     for i, url in enumerate(urls):
-        if not re.match(URL_WITH_FILENAME_REGEX, url):
+        if not re.match(URL_WITH_FILENAME_REGEX, url) and url[-1] != '/':
             url += '/'
 
         params = []

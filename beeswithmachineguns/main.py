@@ -120,7 +120,7 @@ commands:
 
         if options.filename:
             with open(options.filename, 'r') as f:
-                url_list += [url for url in f]
+                url_list += [url.strip() for url in f]
 
         urls = ','.join(url_list)
 
