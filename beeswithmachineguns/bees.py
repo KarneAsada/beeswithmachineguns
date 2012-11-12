@@ -296,24 +296,23 @@ def attack(url, n, c):
     for reservation in reservations:
         instances.extend(reservation.instances)
 
+    url_count = len(urls)
     instance_count = len(instances)
     requests_per_instance = int(float(n) / instance_count)
     connections_per_instance = int(float(c) / instance_count)
-    url_count = len(urls)
 
     if connections_per_instance <= 0:
         print 'You must have at least one connection per instance (c >= instances)'
         return
 
-    print 'Each of %d bees will fire %d rounds, %d at a time (on %d URLs).' % \
+    print 'Each of %d bees will fire %d rounds per URL, %d at a time (%d URLs).' % \
         (instance_count, requests_per_instance, connections_per_instance,
         url_count)
 
+    params = []
     for i, url in enumerate(urls):
         if not re.match(URL_WITH_FILENAME_REGEX, url):
             url += '/'
-
-        print '========== STARTING ATTACK %d ON URL %s ==========' % (i+1, url)
 
         params = []
 
@@ -329,19 +328,19 @@ def attack(url, n, c):
                 'key_name': key_name,
             })
 
-        print 'Stinging URL so it will be cached for the attack.'
+        print 'Stinging %s so it will be cached for the attack.' % url
 
         # Ping url so it will be cached for testing
         urllib2.urlopen(url)
 
-        print 'Organizing the swarm.'
+        print 'Organizing the swarm for %s.' % url
 
-        # Spin up processes for connecting to EC2 instances
-        pool = Pool(len(params))
-        results = pool.map(_attack, params)
+    # Spin up processes for connecting to EC2 instances
+    pool = Pool(len(params))
+    results = pool.map(_attack, params)
 
-        print 'Attack on %s complete.' % url
+    # print 'Attack on %s complete.' % url
 
-        _print_results(results)
+    _print_results(results)
 
     print 'The swarm is awaiting new orders.'
