@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from multiprocessing import Pool
+from multiprocessing import Pool, Process, TimeoutError
 import os
 import re
 import socket
@@ -273,7 +273,7 @@ def _print_results(results):
     else:
         print 'Mission Assessment: Swarm annihilated target.'
     
-def attack(url, n, c):
+def attack(url, requests_per_instance_per_url, concurrent_connections, attack_duration):
     """
     Test the root url of this site.
     """
@@ -299,8 +299,7 @@ def attack(url, n, c):
 
     url_count = len(urls)
     instance_count = len(instances)
-    requests_per_instance_per_url = n
-    connections_per_instance = int(float(c) / instance_count)
+    connections_per_instance = int(float(concurrent_connections) / instance_count)
 
     if requests_per_instance_per_url <= 0:
         print 'Not enough requests per instance (n >= 1)'
@@ -338,12 +337,19 @@ def attack(url, n, c):
 
         print 'Organizing the swarm for %s.' % url
 
+    
     # Spin up processes for connecting to EC2 instances
     pool = Pool(len(params))
-    results = pool.map(_attack, params)
 
-    # print 'Attack on %s complete.' % url
-
-    _print_results(results)
+    # Run for as long as the attack needs to finish, or until time is up
+    if attack_duration is not None:
+        try:
+            results = pool.map_async(_attack, params).get(attack_duration)
+            _print_results(results)
+        except TimeoutError:
+            print 'The attack ended before it could finish!'
+    else:
+        results = pool.map_async(_attack, params).get()
+        _print_results(results)
 
     print 'The swarm is awaiting new orders.'

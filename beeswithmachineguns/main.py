@@ -52,7 +52,7 @@ commands:
     up_group = OptionGroup(parser, "up", 
         """In order to spin up new servers you will need to specify at least the -k command, which is the name of the EC2 keypair to use for creating and connecting to the new servers. The bees will expect to find a .pem file with this name in ~/.ssh/.""")
 
-    # Required
+    # Optional
     up_group.add_option('-k', '--key',  metavar="KEY",  nargs=1,
                         action='store', dest='key', type='string', 
                         help="The ssh key pair name to use to connect to the new servers.")
@@ -72,6 +72,9 @@ commands:
     up_group.add_option('-l', '--login',  metavar="LOGIN",  nargs=1,
                         action='store', dest='login', type='string', default='newsapps',
                         help="The ssh username name to use to connect to the new servers (default: newsapps).")
+    up_group.add_option('-t', '--timeout',  metavar="TIME",  nargs=1,
+                        action='store', dest='seconds', type='int', default=None,
+                        help="Time before the attack should be stopped, in seconds")
 
     parser.add_option_group(up_group)
 
@@ -124,7 +127,7 @@ commands:
 
         urls = ','.join(url_list)
 
-        bees.attack(urls, options.number, options.concurrent)
+        bees.attack(urls, options.number, options.concurrent, options.seconds)
     elif command == 'down':
         bees.down()
     elif command == 'report':
