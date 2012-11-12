@@ -38,6 +38,8 @@ import paramiko
 EC2_INSTANCE_TYPE = 't1.micro'
 STATE_FILENAME = os.path.expanduser('~/.bees')
 
+URL_WITH_FILENAME_REGEX = re.compile(r'^.*?\.[A-Za-z0-9:\.]+\/.+$')
+
 # Utilities
 
 def _read_server_list():
@@ -117,7 +119,7 @@ def up(count, group, zone, image_id, username, key_name):
 
         print 'Bee %s is ready for the attack.' % instance.id
 
-    ec2_connection.create_tags(instance_ids, { "Name": "a bee!" })
+    ec2_connection.create_tags(instance_ids, { 'Name': 'a bee!' })
 
     _write_server_list(username, key_name, reservation.instances)
 
@@ -299,11 +301,18 @@ def attack(url, n, c):
     connections_per_instance = int(float(c) / instance_count)
     url_count = len(urls)
 
+    if connections_per_instance <= 0:
+        print 'You must have at least one connection per instance (c >= instances)'
+        return
+
     print 'Each of %d bees will fire %d rounds, %d at a time (on %d URLs).' % \
         (instance_count, requests_per_instance, connections_per_instance,
         url_count)
 
     for i, url in enumerate(urls):
+        if not re.match(URL_WITH_FILENAME_REGEX, url):
+            url += '/'
+
         print '========== STARTING ATTACK %d ON URL %s ==========' % (i+1, url)
 
         params = []

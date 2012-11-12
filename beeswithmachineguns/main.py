@@ -29,8 +29,6 @@ import re
 import sys
 from optparse import OptionParser, OptionGroup
 
-NO_TRAILING_SLASH_REGEX = re.compile(r'^.*?\.\w+$')
-
 def parse_options():
     """
     Handle the command line arguments for spinning up bees
@@ -112,9 +110,6 @@ commands:
     elif command == 'attack':
         if not options.url:
             parser.error('To run an attack you need to specify a url with -u')
-
-        if NO_TRAILING_SLASH_REGEX.match(options.url):
-            parser.error('It appears your URL lacks a trailing slash, this will disorient the bees. Please try again with a trailing slash.')
 
         bees.attack(options.url, options.number, options.concurrent)
     elif command == 'down':
