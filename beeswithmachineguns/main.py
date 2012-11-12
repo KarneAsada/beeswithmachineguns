@@ -29,8 +29,6 @@ import re
 import sys
 from optparse import OptionParser, OptionGroup
 
-NO_TRAILING_SLASH_REGEX = re.compile(r'^.*?\.\w+$')
-
 def parse_options():
     """
     Handle the command line arguments for spinning up bees
@@ -46,7 +44,7 @@ A utility for arming (creating) many bees (small EC2 instances) to attack
 
 commands:
   up      Start a batch of load testing servers.
-  attack  Begin the attack on a specific url.
+  attack  Begin the attack on a specific URL.
   down    Shutdown and deactivate the load testing servers.
   report  Report the status of the load testing servers.
     """)
@@ -84,13 +82,15 @@ commands:
     attack_group.add_option('-u', '--url', metavar="URL", nargs=1,
                         action='store', dest='url', type='string',
                         help="URL of the target to attack.")
-
+    attack_group.add_option('-f', '--file', metavar="FILE", nargs=1,
+                        action='store', dest='filename', type='string',
+                        help="A file containing a list of URLs to hit")
     attack_group.add_option('-n', '--number', metavar="NUMBER", nargs=1,
                         action='store', dest='number', type='int', default=1000,
-                        help="The number of total connections to make to the target (default: 1000).")
+                        help="The number of total connections to make to the target(s) (default: 1000).")
     attack_group.add_option('-c', '--concurrent', metavar="CONCURRENT", nargs=1,
                         action='store', dest='concurrent', type='int', default=100,
-                        help="The number of concurrent connections to make to the target (default: 100).")
+                        help="The number of concurrent connections to make to the target(s) (default: 100).")
 
     parser.add_option_group(attack_group)
 
@@ -110,13 +110,21 @@ commands:
 
         bees.up(options.servers, options.group, options.zone, options.instance, options.login, options.key)
     elif command == 'attack':
-        if not options.url:
-            parser.error('To run an attack you need to specify a url with -u')
+        if not options.url and not options.filename:
+            parser.error('To run an attack you need to specify a URL with -u or a file with a list of URLs using -f')
 
-        if NO_TRAILING_SLASH_REGEX.match(options.url):
-            parser.error('It appears your URL lacks a trailing slash, this will disorient the bees. Please try again with a trailing slash.')
+        url_list = []
 
-        bees.attack(options.url, options.number, options.concurrent)
+        if options.url:
+            url_list.append(options.url)
+
+        if options.filename:
+            with open(options.filename, 'r') as f:
+                url_list += [url for url in f]
+
+        urls = ','.join(url_list)
+
+        bees.attack(urls, options.number, options.concurrent)
     elif command == 'down':
         bees.down()
     elif command == 'report':
