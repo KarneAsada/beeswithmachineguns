@@ -186,7 +186,8 @@ def _attack(params):
             username=params['username'],
             key_filename=_get_pem_path(params['key_name']))
 
-        print 'Bee %i is firing his machine gun. Bang bang!' % params['i']
+        print 'Bee %i is firing his machine gun at %s. Bang bang!' % \
+            (params['i'], params['url'])
 
         stdin, stdout, stderr = client.exec_command('ab -r -n %(num_requests)s -c %(concurrent_requests)s -C "sessionid=NotARealSessionID" "%(url)s"' % params)
 
@@ -313,8 +314,6 @@ def attack(url, n, c):
     for i, url in enumerate(urls):
         if not re.match(URL_WITH_FILENAME_REGEX, url) and url[-1] != '/':
             url += '/'
-
-        params = []
 
         for j, instance in enumerate(instances):
             params.append({
