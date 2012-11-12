@@ -288,6 +288,7 @@ def attack(url, n, c):
 
     reservations = ec2_connection.get_all_instances(instance_ids=instance_ids)
 
+    urls = url.split(',')
     instances = []
 
     for reservation in reservations:
@@ -296,36 +297,42 @@ def attack(url, n, c):
     instance_count = len(instances)
     requests_per_instance = int(float(n) / instance_count)
     connections_per_instance = int(float(c) / instance_count)
+    url_count = len(urls)
 
-    print 'Each of %i bees will fire %s rounds, %s at a time.' % (instance_count, requests_per_instance, connections_per_instance)
+    print 'Each of %d bees will fire %d rounds, %d at a time (on %d URLs).' % \
+        (instance_count, requests_per_instance, connections_per_instance,
+        url_count)
 
-    params = []
+    for i, url in enumerate(urls):
+        print '========== STARTING ATTACK %d ON URL %s ==========' % (i+1, url)
 
-    for i, instance in enumerate(instances):
-        params.append({
-            'i': i,
-            'instance_id': instance.id,
-            'instance_name': instance.public_dns_name,
-            'url': url,
-            'concurrent_requests': connections_per_instance,
-            'num_requests': requests_per_instance,
-            'username': username,
-            'key_name': key_name,
-        })
+        params = []
 
-    print 'Stinging URL so it will be cached for the attack.'
+        for j, instance in enumerate(instances):
+            params.append({
+                'i': j,
+                'instance_id': instance.id,
+                'instance_name': instance.public_dns_name,
+                'url': url,
+                'concurrent_requests': connections_per_instance,
+                'num_requests': requests_per_instance,
+                'username': username,
+                'key_name': key_name,
+            })
 
-    # Ping url so it will be cached for testing
-    urllib2.urlopen(url)
+        print 'Stinging URL so it will be cached for the attack.'
 
-    print 'Organizing the swarm.'
+        # Ping url so it will be cached for testing
+        urllib2.urlopen(url)
 
-    # Spin up processes for connecting to EC2 instances
-    pool = Pool(len(params))
-    results = pool.map(_attack, params)
+        print 'Organizing the swarm.'
 
-    print 'Offensive complete.'
+        # Spin up processes for connecting to EC2 instances
+        pool = Pool(len(params))
+        results = pool.map(_attack, params)
 
-    _print_results(results)
+        print 'Attack on %s complete.' % url
+
+        _print_results(results)
 
     print 'The swarm is awaiting new orders.'
