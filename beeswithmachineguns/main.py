@@ -87,7 +87,7 @@ commands:
                         help="A file containing a list of URLs to hit")
     attack_group.add_option('-n', '--number', metavar="NUMBER", nargs=1,
                         action='store', dest='number', type='int', default=1000,
-                        help="The number of total connections to make to the target(s) (default: 1000).")
+                        help="The number of connections to make per instance per URL (default: 1000).")
     attack_group.add_option('-c', '--concurrent', metavar="CONCURRENT", nargs=1,
                         action='store', dest='concurrent', type='int', default=100,
                         help="The number of concurrent connections to make to the target(s) (default: 100).")

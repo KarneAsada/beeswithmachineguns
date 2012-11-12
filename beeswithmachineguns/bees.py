@@ -299,15 +299,19 @@ def attack(url, n, c):
 
     url_count = len(urls)
     instance_count = len(instances)
-    requests_per_instance = int(float(n) / instance_count)
+    requests_per_instance_per_url = n
     connections_per_instance = int(float(c) / instance_count)
+
+    if requests_per_instance_per_url <= 0:
+        print 'Not enough requests per instance (n >= 1)'
+        return
 
     if connections_per_instance <= 0:
         print 'You must have at least one connection per instance (c >= instances)'
         return
 
     print 'Each of %d bees will fire %d rounds per URL, %d at a time (%d URLs).' % \
-        (instance_count, requests_per_instance, connections_per_instance,
+        (instance_count, requests_per_instance_per_url, connections_per_instance,
         url_count)
 
     params = []
@@ -322,7 +326,7 @@ def attack(url, n, c):
                 'instance_name': instance.public_dns_name,
                 'url': url,
                 'concurrent_requests': connections_per_instance,
-                'num_requests': requests_per_instance,
+                'num_requests': requests_per_instance_per_url,
                 'username': username,
                 'key_name': key_name,
             })
