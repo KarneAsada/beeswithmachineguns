@@ -1,4 +1,4 @@
-*ATTENTION:* This project has several open pull requests and is in need of a maintainer! If you have experience with EC2, Python and load testing tools and would be interested in taking it over, please open a ticket telling us why and we'll get back to you. Thanks!
+*ATTENTION:* This is a forked version of BMG, forked from the Thrillist fork.  The main modification is that it allows the user of query strings in the target server address.
 
 h1. Bees with Machine Guns!
 
@@ -29,9 +29,8 @@ easy_install beeswithmachineguns
 h2. Installation for developers (w/ virtualenv + virtualenvwrapper)
 
 <pre>
-git clone git://github.com/newsapps/beeswithmachineguns.git
+git clone git://github.com/KarneAsada/beeswithmachineguns.git
 cd beeswithmachineguns
-mkvirtualenv --no-site-packages bees
 easy_install pip
 pip install -r requirements.txt
 </pre>

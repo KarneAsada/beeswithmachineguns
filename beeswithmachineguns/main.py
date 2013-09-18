@@ -64,8 +64,8 @@ commands:
                         action='store', dest='group', type='string', default='default',
                         help="The security group to run the instances under (default: default).")
     up_group.add_option('-z', '--zone',  metavar="ZONE",  nargs=1,
-                        action='store', dest='zone', type='string', default='us-east-1d',
-                        help="The availability zone to start the instances in (default: us-east-1d).")
+                        action='store', dest='zone', type='string', default='us-east-1a',
+                        help="The availability zone to start the instances in (default: us-east-1a).")
     up_group.add_option('-i', '--instance',  metavar="INSTANCE",  nargs=1,
                         action='store', dest='instance', type='string', default='ami-ff17fb96',
                         help="The instance-id to use for each server from (default: ami-ff17fb96).")
